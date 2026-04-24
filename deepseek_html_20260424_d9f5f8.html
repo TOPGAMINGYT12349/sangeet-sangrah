@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Sangeet Sangrah | Hosted Music Vault (Online + Offline)</title>
+    <!-- Google Fonts + Luxe styling -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(circle at 20% 30%, #0a0c12, #010101);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            padding: 1.5rem;
+        }
+
+        /* luxury glass container */
+        .app-container {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(15, 18, 25, 0.65);
+            backdrop-filter: blur(16px);
+            border-radius: 2.5rem;
+            border: 1px solid rgba(255, 215, 150, 0.25);
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 215, 0, 0.1) inset;
+            overflow: hidden;
+        }
+
+        /* header */
+        .header {
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            background: rgba(0, 0, 0, 0.3);
+        }
+        .logo h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #F9D976, #E6B85C, #B67F2E);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .logo p {
+            color: #c9b37c;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+        }
+        .badge-host {
+            background: #1e2a2e;
+            padding: 0.4rem 1.2rem;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #e3c87b;
+            border-left: 2px solid #e6b422;
+        }
+        .badge-host i {
+            margin-right: 6px;
+            color: #ff9933;
+        }
+
+        /* two column layout */
+        .main-dashboard {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .admin-section {
+            flex: 1.2;
+            padding: 2rem;
+            border-right: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        .listener-section {
+            flex: 2;
+            padding: 2rem;
+        }
+
+        /* cards */
+        .host-card {
+            background: rgba(0, 0, 0, 0.45);
+            border-radius: 1.8rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(230, 180, 80, 0.4);
+            backdrop-filter: blur(4px);
+            margin-bottom: 1.8rem;
+        }
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #f5e2b6;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title i {
+            color: #e6b422;
+        }
+        .drop-zone {
+            border: 2px dashed #c2a15b;
+            border-radius: 1.5rem;
+            padding: 2rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            background: rgba(0, 0, 0, 0.4);
+        }
+        .drop-zone:hover {
+            border-color: #f3c46b;
+            background: rgba(230, 180, 80, 0.1);
+        }
+        .drop-zone i {
+            font-size: 2.2rem;
+            color: #dbb25c;
+        }
+        #hostFileInput {
+            display: none;
+        }
+        .helper-text {
+            font-size: 0.7rem;
+            color: #a3946e;
+            margin-top: 10px;
+        }
+
+        /* current player */
+        .global-player {
+            background: linear-gradient(145deg, #0e0f16, #030407);
+            border-radius: 1.5rem;
+            padding: 1.2rem;
+            margin-top: 1rem;
+            border: 1px solid rgba(212, 175, 55, 0.5);
+        }
+        .track-name-badge {
+            font-weight: 700;
+            color: #f0d99a;
+            background: rgba(0,0,0,0.5);
+            padding: 4px 12px;
+            border-radius: 40px;
+            display: inline-block;
+        }
+        audio {
+            width: 100%;
+            border-radius: 60px;
+            margin-top: 8px;
+        }
+
+        /* library grid (songs visible to all users) */
+        .track-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 480px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+        .track-item {
+            background: rgba(20, 22, 32, 0.7);
+            border-radius: 1.2rem;
+            padding: 1rem 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            transition: 0.2s;
+            border-left: 4px solid #e6b422;
+            backdrop-filter: blur(4px);
+        }
+        .track-item:hover {
+            background: rgba(35, 38, 55, 0.9);
+            transform: translateX(4px);
+        }
+        .track-meta {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 3;
+            min-width: 180px;
+        }
+        .track-icon {
+            background: #2c261b;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e6b422;
+            font-size: 1.2rem;
+        }
+        .track-title {
+            font-weight: 600;
+            color: #f4ebd0;
+            word-break: break-word;
+        }
+        .track-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .btn-icon {
+            background: none;
+            border: none;
+            color: #e2c787;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+        .btn-icon:hover {
+            background: rgba(230, 180, 80, 0.2);
+            color: #ffde9e;
+            transform: scale(1.02);
+        }
+        .download-btn {
+            color: #9cd4ff;
+        }
+        .play-btn {
+            color: #d9bc6a;
+        }
+        .delete-host {
+            color: #e08e6e;
+        }
+        .offline-tag {
+            font-size: 0.65rem;
+            background: #2b4f2b;
+            padding: 3px 8px;
+            border-radius: 20px;
+            color: #c7ffa2;
+            margin-left: 8px;
+            white-space: nowrap;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #b8aa82;
+        }
+        .status-banner {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .network-badge {
+            font-size: 0.7rem;
+            background: #1a1a10;
+            padding: 4px 12px;
+            border-radius: 50px;
+        }
+        .host-action-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+        .luxe-btn {
+            background: linear-gradient(95deg, #dbaa39, #bd882a);
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            color: #13100a;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .sec-btn {
+            background: #2a241a;
+            color: #e6c27a;
+        }
+        footer {
+            padding: 1rem 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+            font-size: 0.75rem;
+            color: #9b8b62;
+        }
+        .credit {
+            margin-top: 6px;
+            font-weight: 500;
+            color: #e6c27a;
+        }
+        @media (max-width: 880px) {
+            .admin-section { border-right: none; border-bottom: 1px solid rgba(212, 175, 55, 0.2); }
+            body { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="header">
+        <div class="logo">
+            <h1>🎵 Sangeet Sangrah</h1>
+            <p>Hosted Melody Treasury · Online + Offline</p>
+        </div>
+        <div class="badge-host">
+            <i class="fas fa-crown"></i> Host Curated Library
+        </div>
+    </div>
+
+    <div class="main-dashboard">
+        <!-- Left Panel: Host Controls (only host can add/delete songs) -->
+        <div class="admin-section">
+            <div class="host-card">
+                <div class="section-title">
+                    <i class="fas fa-microphone-alt"></i> <span>Host Upload</span>
+                </div>
+                <div class="drop-zone" id="adminDropZone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drag & drop or click to add songs</p>
+                    <p style="font-size:0.75rem; margin-top:5px;">MP3, WAV, OGG, M4A</p>
+                    <input type="file" id="hostFileInput" multiple accept="audio/mpeg,audio/wav,audio/ogg,audio/mp4,audio/m4a,.mp3,.wav,.ogg,.m4a">
+                </div>
+                <div class="helper-text">
+                    <i class="fas fa-database"></i> Songs stored in cloud (IndexedDB) — All visitors see & play them.
+                </div>
+                <div class="host-action-row">
+                    <button id="clearAllHostBtn" class="luxe-btn sec-btn"><i class="fas fa-trash-alt"></i> Remove All Songs</button>
+                </div>
+            </div>
+
+            <!-- Live Player (for everyone) -->
+            <div class="global-player">
+                <div class="section-title" style="margin-bottom: 6px;"><i class="fas fa-headphones"></i> Now Playing</div>
+                <div id="currentTrackDisplay" class="track-name-badge">No track selected</div>
+                <audio id="globalAudioPlayer" controls preload="metadata"></audio>
+                <div style="margin-top: 12px; display: flex; justify-content: space-between;">
+                    <small style="color:#857c62;"><i class="fas fa-circle-info"></i> Stream or Download → Offline ready</small>
+                    <span id="networkStatus" class="network-badge"><i class="fas fa-wifi"></i> Online</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Listener's Library (displays host's songs) -->
+        <div class="listener-section">
+            <div class="section-title">
+                <i class="fas fa-music"></i> Host's Collection <span style="font-size:0.8rem; margin-left:auto;" id="songCount">(0 tracks)</span>
+            </div>
+            <div id="trackListContainer" class="track-list">
+                <div class="empty-state">
+                    <i class="fas fa-dove" style="font-size:2rem;"></i>
+                    <p>Host hasn't added any songs yet. Check back soon!</p>
+                </div>
+            </div>
+            <div style="margin-top: 1rem; text-align: right; font-size:0.7rem; color:#7f6e48;">
+                <i class="fas fa-download"></i> Download any track to keep it offline forever
+            </div>
+        </div>
+    </div>
+    <footer>
+        <div>✨ Made in India — Host adds once, everyone enjoys online & offline ✨</div>
+        <div class="credit"><i class="fas fa-pen-fancy"></i> crafted by Pratyaksh Tyagi — sovereign music vault</div>
+    </footer>
+</div>
+
+<script>
+    // ------------------------- HOSTED MUSIC VAULT -------------------------
+    // - Host (anyone with the app) can import songs. Those songs are stored in IndexedDB.
+    // - Every visitor sees the exact same library (shared via IndexedDB — persistent across same origin).
+    // - All users can play online (streaming from IndexedDB) or download original files.
+    // - Once downloaded, tracks remain accessible offline (since they are stored locally).
+    // - Host also has full delete rights.
+    
+    const DB_NAME = 'SangeetSangrahDB';
+    const DB_VERSION = 3;
+    const STORE_NAME = 'hostSongs';
+
+    let db = null;
+    let currentBlobUrl = null;
+    let currentSongId = null;
+
+    // DOM elements
+    const hostFileInput = document.getElementById('hostFileInput');
+    const adminDropZone = document.getElementById('adminDropZone');
+    const trackListContainer = document.getElementById('trackListContainer');
+    const globalAudio = document.getElementById('globalAudioPlayer');
+    const currentTrackDisplay = document.getElementById('currentTrackDisplay');
+    const songCountSpan = document.getElementById('songCount');
+    const clearAllBtn = document.getElementById('clearAllHostBtn');
+    const networkStatusSpan = document.getElementById('networkStatus');
+
+    // Network indicator
+    function updateNetworkIndicator() {
+        if (navigator.onLine) {
+            networkStatusSpan.innerHTML = '<i class="fas fa-wifi"></i> Online';
+            networkStatusSpan.style.background = '#1f3a1f';
+        } else {
+            networkStatusSpan.innerHTML = '<i class="fas fa-plug"></i> Offline (cached)';
+            networkStatusSpan.style.background = '#3e2a1f';
+        }
+    }
+    window.addEventListener('online', updateNetworkIndicator);
+    window.addEventListener('offline', updateNetworkIndicator);
+    updateNetworkIndicator();
+
+    // IndexedDB initialization
+    function openDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(DB_NAME, DB_VERSION);
+            request.onerror = () => reject(request.error);
+            request.onsuccess = () => {
+                db = request.result;
+                resolve(db);
+            };
+            request.onupgradeneeded = (ev) => {
+                const dbRef = ev.target.result;
+                if (!dbRef.objectStoreNames.contains(STORE_NAME)) {
+                    const store = dbRef.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                    store.createIndex('name', 'name', { unique: false });
+                    store.createIndex('timestamp', 'timestamp', { unique: false });
+                }
+            };
+        });
+    }
+
+    // Helper: get all songs (host library)
+    async function getAllSongs() {
+        if (!db) return [];
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(STORE_NAME, 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.getAll();
+            request.onsuccess = () => resolve(request.result || []);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    // Add song (host action)
+    async function addSongToDB(file) {
+        return new Promise((resolve, reject) => {
+            if (!db) reject('DB not ready');
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                const arrayBuffer = event.target.result;
+                const blob = new Blob([arrayBuffer], { type: file.type });
+                const songData = {
+                    name: file.name,
+                    type: file.type,
+                    size: file.size,
+                    blob: blob,
+                    timestamp: Date.now(),
+                };
+                const transaction = db.transaction(STORE_NAME, 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.add(songData);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            };
+            reader.onerror = () => reject(reader.error);
+            reader.readAsArrayBuffer(file);
+        });
+    }
+
+    // Delete single song
+    async function deleteSongById(id) {
+        return new Promise((resolve, reject) => {
+            if (!db) reject();
+            const transaction = db.transaction(STORE_NAME, 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.delete(id);
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    // Clear entire library (host only)
+    async function clearAllSongs() {
+        if (!db) return;
+        const transaction = db.transaction(STORE_NAME, 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.clear();
+        return new Promise((resolve, reject) => {
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    // Get song blob by id
+    async function getSongBlobById(id) {
+        return new Promise((resolve, reject) => {
+            if (!db) reject();
+            const transaction = db.transaction(STORE_NAME, 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.get(id);
+            request.onsuccess = () => {
+                if (request.result) resolve(request.result);
+                else reject('Song missing');
+            };
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    // Render library for ALL users (guests see exactly what host added)
+    async function renderLibrary() {
+        if (!db) return;
+        const songs = await getAllSongs();
+        songCountSpan.innerText = `(${songs.length} track${songs.length !== 1 ? 's' : ''})`;
+        
+        if (songs.length === 0) {
+            trackListContainer.innerHTML = `<div class="empty-state"><i class="fas fa-dove"></i><p>Host's library is empty. Add songs using left panel.</p></div>`;
+            return;
+        }
+        
+        trackListContainer.innerHTML = '';
+        for (const song of songs) {
+            const trackDiv = document.createElement('div');
+            trackDiv.className = 'track-item';
+            trackDiv.innerHTML = `
+                <div class="track-meta">
+                    <div class="track-icon"><i class="fas fa-music"></i></div>
+                    <div class="track-title">
+                        ${escapeHtml(song.name)}
+                        <span class="offline-tag"><i class="fas fa-check-circle"></i> Offline-ready</span>
+                    </div>
+                </div>
+                <div class="track-actions">
+                    <button class="btn-icon play-btn" data-id="${song.id}" data-name="${escapeHtml(song.name)}" title="Play"><i class="fas fa-play"></i></button>
+                    <button class="btn-icon download-btn" data-id="${song.id}" data-name="${escapeHtml(song.name)}" title="Download for offline"><i class="fas fa-download"></i></button>
+                    <button class="btn-icon delete-host" data-id="${song.id}" title="Host: Remove song"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            `;
+            const playBtn = trackDiv.querySelector('.play-btn');
+            const downloadBtn = trackDiv.querySelector('.download-btn');
+            const deleteBtn = trackDiv.querySelector('.delete-host');
+            
+            playBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                playSongById(song.id, song.name);
+            });
+            downloadBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                await downloadSong(song.id, song.name);
+            });
+            deleteBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                if (confirm(`As host, remove "${song.name}" from public library? All visitors will lose access.`)) {
+                    await deleteSongById(song.id);
+                    if (currentSongId === song.id) {
+                        globalAudio.pause();
+                        if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
+                        currentBlobUrl = null;
+                        currentSongId = null;
+                        currentTrackDisplay.innerText = 'No track selected';
+                        globalAudio.src = '';
+                    }
+                    await renderLibrary();
+                    showToast(`🗑️ Removed "${song.name}" from vault`, '#8b5a2b');
+                }
+            });
+            trackListContainer.appendChild(trackDiv);
+        }
+    }
+
+    // Play song (works for all users, streamed from IndexedDB)
+    async function playSongById(id, songName) {
+        try {
+            const songData = await getSongBlobById(id);
+            if (!songData || !songData.blob) throw new Error('No audio data');
+            if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
+            const blobUrl = URL.createObjectURL(songData.blob);
+            currentBlobUrl = blobUrl;
+            currentSongId = id;
+            globalAudio.src = blobUrl;
+            currentTrackDisplay.innerText = songName;
+            await globalAudio.play().catch(e => console.log("autoplay blocked"));
+        } catch (err) {
+            console.error(err);
+            alert('Cannot play track. File may be corrupted.');
+        }
+    }
+
+    // Download original file (any user)
+    async function downloadSong(id, fileName) {
+        try {
+            const songData = await getSongBlobById(id);
+            if (!songData || !songData.blob) throw new Error('No blob');
+            const blob = songData.blob;
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showToast(`⬇️ Downloading "${fileName}" — now yours offline`, '#2f6b2f');
+        } catch (err) {
+            alert('Download failed: ' + err.message);
+        }
+    }
+
+    // Host import handler
+    async function handleHostImport(files) {
+        if (!db) await openDB();
+        let imported = 0;
+        for (const file of files) {
+            if (file.type.startsWith('audio/') || /\.(mp3|wav|ogg|m4a)$/i.test(file.name)) {
+                try {
+                    await addSongToDB(file);
+                    imported++;
+                } catch (err) { console.warn(err); }
+            } else {
+                console.warn('Skip non-audio:', file.name);
+            }
+        }
+        if (imported > 0) {
+            await renderLibrary();
+            showToast(`🎵 ${imported} new song(s) added to Host Library — visible to all visitors!`, '#b8860b');
+        } else if (files.length) {
+            alert('No valid audio files. Please add MP3, WAV, OGG, or M4A.');
+        }
+    }
+
+    // Toast notification (premium feel)
+    function showToast(message, bgColor) {
+        let toast = document.createElement('div');
+        toast.innerText = message;
+        toast.style.position = 'fixed';
+        toast.style.bottom = '24px';
+        toast.style.left = '24px';
+        toast.style.background = bgColor || '#1f2a0e';
+        toast.style.color = '#ffefcf';
+        toast.style.padding = '10px 20px';
+        toast.style.borderRadius = '40px';
+        toast.style.fontSize = '0.85rem';
+        toast.style.zIndex = '9999';
+        toast.style.backdropFilter = 'blur(8px)';
+        toast.style.borderLeft = `4px solid #e6b422`;
+        toast.style.fontWeight = '500';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2800);
+    }
+
+    // Setup drag & drop for host
+    function setupHostUpload() {
+        adminDropZone.addEventListener('click', () => hostFileInput.click());
+        adminDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            adminDropZone.style.borderColor = '#f7d56e';
+            adminDropZone.style.background = 'rgba(230,180,80,0.15)';
+        });
+        adminDropZone.addEventListener('dragleave', () => {
+            adminDropZone.style.borderColor = '#c2a15b';
+            adminDropZone.style.background = 'rgba(0,0,0,0.4)';
+        });
+        adminDropZone.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            adminDropZone.style.borderColor = '#c2a15b';
+            adminDropZone.style.background = 'rgba(0,0,0,0.4)';
+            const files = e.dataTransfer.files;
+            if (files.length) await handleHostImport(Array.from(files));
+        });
+        hostFileInput.addEventListener('change', async (e) => {
+            if (e.target.files.length) {
+                await handleHostImport(Array.from(e.target.files));
+                hostFileInput.value = '';
+            }
+        });
+    }
+
+    // Clear entire library (host only)
+    clearAllBtn.addEventListener('click', async () => {
+        if (confirm('⚠️ HOST ACTION: Delete EVERY song from library? All visitors will lose access. This is permanent.')) {
+            await clearAllSongs();
+            if (currentBlobUrl) {
+                URL.revokeObjectURL(currentBlobUrl);
+                currentBlobUrl = null;
+            }
+            globalAudio.src = '';
+            currentSongId = null;
+            currentTrackDisplay.innerText = 'No track selected';
+            await renderLibrary();
+            showToast('🗑️ Entire music library cleared. Host can re-upload songs.', '#8b4513');
+        }
+    });
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // Initialize application
+    async function init() {
+        await openDB();
+        await renderLibrary();
+        setupHostUpload();
+        window.addEventListener('beforeunload', () => {
+            if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
+        });
+        // If no songs, show empty state but host can upload instantly
+        const songs = await getAllSongs();
+        if (songs.length === 0) {
+            // all good
+        }
+    }
+    init().catch(err => console.error('DB init error', err));
+</script>
+</body>
+</html>
